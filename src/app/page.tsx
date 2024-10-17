@@ -1,6 +1,13 @@
 "use client"
 import {useEffect, useState} from "react";
 import Link from "next/link";
+import Image from 'next/image';
+import img1 from "./images/Image.svg";
+
+import img2 from "./images/server.gif";
+import img3 from "./images/seensor.gif";
+import img4 from "./images/client.gif";
+import img5 from "./images/bg.svg";
 
 export default function Home() {
     const [showDownloadLink, setShowDownloadLink] = useState(
@@ -127,27 +134,107 @@ export default function Home() {
     }, [sensorEventSource, serverEventSource, clientEventSource]);
 
     return (
-        <div className="container mt-4">
-            <div className="card">
-                <div className="card-header">
-                    <h2>Setup Configuration</h2>
-                    <h5>Simulate Testbed</h5>
+        <div className=" container mt-4">
+            <div  style={{background: "radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,0.35057773109243695) 100%)"}} className="card">
+
+                <div   className="container text-center ">
+                    <div  className="row">
+                        <div  className="col-sm-6 d-flex justify-content-center align-items-center">
+                            <div className="m-5">
+                                <h2 style={{color:"#fff"}}>STGen Testbed Launcher over SRTP protocol</h2>
+                                <hr style={{color:"#fff"}}/>
+                                <h5 style={{color:"#fff"}}>Simulate Testbed</h5>
+                            </div>
+                        </div>
+                        <div className="col-sm-6">
+                        <Image
+                        src={img1}
+                        width={300}
+                        height={300}
+                        alt="Picture of the author"
+                        />
+                        {/* <img width="500px" 
+                        height="500px"  src="./images/image.svg" alt="" /> */}
+                        </div>
+                    </div>
                 </div>
-                <div className="card-body">
-                    <form>
-                        <table className="table table-bordered">
-                            <thead className="thead-light">
-                            <tr>
-                                <th>STGEN Core Node Instance Setup</th>
-                                <th>Sensor Setup</th>
-                                <th>Client Setup</th>
+                <div  className="card-body ">
+                    <form >
+                        <table className="table table-bordered ">
+                            <thead className="thead-light ">
+                            <tr >
+                                <th style={{height:"80px"}} >
+                                    <div className="d-flex justify-content-center align-items-center ">
+                                    <Image
+                                    src={img2}
+                                    width={50}
+                                    height={50}
+                                    alt="Picture of the author"
+                                    />
+                                    <p  style={{marginTop:"18px "}}>STGEN Core Node Instance Setup</p>
+                                    </div>
+                                    
+                                    
+                                </th>
+
+                                <th style={{height:"80px"}} >
+                                    <div className="d-flex justify-content-center align-items-center">
+                                    <Image
+                                    src={img3}
+                                    width={50}
+                                    height={50}
+                                    alt="Picture of the author"
+                                    />
+                                    <p  style={{marginTop:"18px "}}>Sensor Setup</p>
+                                    </div>
+                                    
+                                    
+                                </th>
+
+                                <th style={{height:"80px"}} >
+                                    <div className="d-flex justify-content-center align-items-center">
+                                    <Image
+                                    src={img4}
+                                    width={50}
+                                    height={50}
+                                    alt="Picture of the author"
+                                    />
+                                    <p  style={{marginTop:"18px "}}>Client Setup</p>
+                                    </div>
+                                    
+                                    
+                                </th>
+                               
+                                {/* <th style={{height:"80px" }} className="d-flex justify-content-center align-items-center">
+                                    <Image
+                                    src={img2}
+                                    width={50}
+                                    height={50}
+                                    alt="Picture of the author"
+                                    />
+                                    
+                                    
+                                </th> */}
+                               
+                                {/* <th style={{height:"80px "}} className="d-flex justify-content-center align-items-center">
+                                    <Image
+                                    src={img2}
+                                    width={50}
+                                    height={50}
+                                    alt="Picture of the author"
+                                    />
+                                    <p style={{marginTop:"18px "}}>Client Setup</p>
+                                    
+                                </th> */}
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
 
                                 <td>
-                                    <label>Instance IP/Port address</label>
+                                    <label>
+                                        <p className="m-1 text-primary-emphasis fw-bold">Instance IP/Port address</p>
+                                    </label>
                                     <input
                                         name="serverWithPort"
                                         type="text"
@@ -157,7 +244,10 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('server', 'serverWithPort', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Client Port</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">Client Port</p>
+                                    </label>
                                     <input
                                         name="clientPort"
                                         type="text"
@@ -167,7 +257,10 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('server', 'clientPort', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Simulation Time</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time</p>
+                                    </label>
                                     <input
                                         name="simulationTime"
                                         type="text"
@@ -182,7 +275,10 @@ export default function Home() {
                                     </button>
                                 </td>
                                 <td>
-                                    <label>STGEN Core Node Instance Address</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">STGEN Core Node Instance Address</p>
+                                    </label>
                                     <input
                                         name="serverWithPort"
                                         required={true}
@@ -193,7 +289,12 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('sensor', 'serverWithPort', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Simulation Time</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time</p>
+                                   
+                                        
+                                    </label>
                                     <input
                                         name="simulationTime"
                                         required={true}
@@ -204,7 +305,10 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('sensor', 'simulationTime', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Number Of Sensors</label>
+                                    <label>
+                                        Number Of Sensors
+                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time</p>
+                                    </label>
                                     <input
                                         name="numberOfSensors"
                                         type="text"
@@ -221,7 +325,10 @@ export default function Home() {
                                 </td>
 
                                 <td>
-                                    <label>STGEN Core Node Instance Address</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">STGEN Core Node Instance Address</p>
+                                    </label>
                                     <input
                                         name="server"
                                         type="text"
@@ -231,7 +338,10 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('client', 'server', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Client Application Address</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">Client Application Address</p>
+                                    </label>
                                     <input
                                         name="clientPort"
                                         type="text"
@@ -241,7 +351,10 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('client', 'clientPort', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Which sensor are you interested in?</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">Which sensor are you interested in?</p>
+                                    </label>
                                     <input
                                         name="sensors"
                                         type="text"
@@ -251,7 +364,10 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('client', 'sensors', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Archive directory Name</label>
+                                    <label>
+                                        
+                                        <p className="m-1 text-primary-emphasis fw-bold">Archive directory Name</p>
+                                    </label>
                                     <input
                                         name="clientLogName"
                                         type="text"
@@ -261,7 +377,10 @@ export default function Home() {
                                         onChange={(e) => handleInputChange('client', 'clientLogName', e.target.value)}
                                     />
                                     <hr></hr>
-                                    <label>Observation Time</label>
+                                    <label>
+                                       
+                                        <p className="m-1 text-primary-emphasis fw-bold"> Observation Time</p>
+                                    </label>
                                     <input
                                         name="observationTime"
                                         type="text"
