@@ -141,9 +141,9 @@ export default function Home() {
                     <div  className="row">
                         <div  className="col-sm-6 d-flex justify-content-center align-items-center">
                             <div className="m-5">
-                                <h2 style={{color:"#fff"}}>STGen Testbed Launcher over SRTP protocol</h2>
-                                <hr style={{color:"#fff"}}/>
-                                <h5 style={{color:"#fff"}}>Simulate Testbed</h5>
+                                <h2 style={{fontWeight: "900"}}>STGen Testbed Launcher over SRTP protocol</h2>
+                                <hr style={{fontWeight: "900"}}/>
+                                <h5 style={{fontWeight: "900"}}>Simulate Testbed</h5>
                             </div>
                         </div>
                         <div className="col-sm-6">
@@ -158,10 +158,10 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
-                <div  className="card-body ">
+                <div  className="card-body p-0">
                     <form >
-                        <table className="table table-bordered ">
-                            <thead className="thead-light ">
+                        <table  className="table table-bordered ">
+                            <thead  className="thead-light ">
                             <tr >
                                 <th style={{height:"80px"}} >
                                     <div className="d-flex justify-content-center align-items-center ">
@@ -402,18 +402,24 @@ export default function Home() {
 
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <label><b>STGEN Core Node Instance Logs</b></label>
-                                    <textarea  className="form-control" value={textAreas.server} readOnly
-                                              rows={20}></textarea>
+                            
+                            <tr >
+                            
+                                <td >
+                                    <div >
+                                        <label><b>STGEN Core Node Instance Logs</b></label>
+                                        <textarea  className="form-control" value={textAreas.server} readOnly
+                                                rows={20}></textarea>
+                                    </div>
                                 </td>
                                 <td>
+                                
                                     <label><b>Sensor application Logs</b></label>
                                     <textarea className="form-control" value={textAreas.sensor} readOnly
                                               rows={20}></textarea>
                                 </td>
                                 <td>
+                                    
                                     <label><b>Client application Logs</b></label>
                                     <textarea className="form-control" value={textAreas.client} readOnly
                                               rows={20}></textarea>
