@@ -7,7 +7,6 @@ import img1 from "./images/Image.svg";
 import img2 from "./images/server.gif";
 import img3 from "./images/seensor.gif";
 import img4 from "./images/client.gif";
-import img5 from "./images/bg.svg";
 
 export default function Home() {
     const [showDownloadLink, setShowDownloadLink] = useState(
@@ -16,6 +15,7 @@ export default function Home() {
 
     interface InputValues {
         serverWithPort?: string;
+        sensorCommunicationPort?: string;
         clientPort?: string;
         numberOfSensors?: string;
         simulationTime?: string;
@@ -31,15 +31,72 @@ export default function Home() {
         client: string;
     }
 
+    interface SensorConfigFields {
+        sensorType: string;
+        numberOfNodes: number;
+        emissionRate: number;
+    }
+
+    interface SensorInterestField {
+        sensorName: string;
+    }
+
+    const [sensorConfigFields, setSensorConfigFields] = useState<SensorConfigFields[]>([]);
+    const [sensorFields, setSensorFields] = useState<SensorInterestField[]>([]);
+
+    const handleAddMoreSensors = () => {
+        setSensorConfigFields((prevInputs) => [
+            ...prevInputs,
+            {sensorType: 'gps', numberOfNodes: 4, emissionRate: 100}
+        ]);
+    };
+
+    const handleSesnsorInputChange = (index: number, field: keyof SensorConfigFields, value: string) => {
+        const newInputs = [...sensorConfigFields];
+        // Use type assertion to ensure TypeScript knows newInputs[index] is SensorConfigFields
+        newInputs[index] = {
+            ...newInputs[index],
+            [field]: value
+        };
+        setSensorConfigFields(newInputs);
+    };
+
+
+    const handleAddSensorInterests = () => {
+        setSensorFields((prevInputs) => [
+            ...prevInputs,
+            {sensorName: 'gps_1'}
+        ]);
+    };
+
+    const handleSesnsorInterestChange = (index: number, field: keyof SensorInterestField, value: string) => {
+        const newInputs = [...sensorFields];
+        // Use type assertion to ensure TypeScript knows newInputs[index] is SensorConfigFields
+        newInputs[index] = {
+            ...newInputs[index],
+            [field]: value
+        };
+        setSensorFields(newInputs);
+    };
+
+
     // Create state for input fields and text areas
     const [inputValues, setInputValues] = useState<{
         sensor: InputValues;
         server: InputValues;
         client: InputValues;
     }>({
-        sensor: { serverWithPort: 'localhost:5004', simulationTime: '20', numberOfSensors: '4' },
-        server: { serverWithPort: 'localhost:5004', clientPort: '5005', simulationTime: '20' },
-        client: { server: 'localhost:5004', clientLogName: 'client1_sensor_log', sensors: 'gps_2', clientPort: 'localhost:5005', observationTime: '20' },
+        sensor: {sensorCommunicationPort: 'localhost:5004', simulationTime: '20', numberOfSensors: '4'},
+        server: {
+            serverWithPort: 'localhost:5005',
+            simulationTime: '20',
+            sensorCommunicationPort: "localhost:5004"
+        },
+        client: {
+            serverWithPort: 'localhost:5005',
+            clientLogName: 'client1_sensor_log',
+            observationTime: '20'
+        },
     });
 
     const [textAreas, setTextAreas] = useState<TextAreas>({
@@ -57,7 +114,7 @@ export default function Home() {
     const handleInputChange = (column: keyof typeof inputValues, field: keyof InputValues, value: string) => {
         setInputValues((prev) => ({
             ...prev,
-            [column]: { ...prev[column], [field]: value },
+            [column]: {...prev[column], [field]: value},
         }));
     };
 
@@ -69,10 +126,14 @@ export default function Home() {
             numberOfSensors: inputValues[column].numberOfSensors || '',
             simulationTime: inputValues[column].simulationTime || '',
             observationTime: inputValues[column].observationTime || '',
+            sensorCommunicationPort: inputValues[column].sensorCommunicationPort || '',
             server: inputValues[column].server || '',
             clientLogName: inputValues[column].clientLogName || '',
             sensors: inputValues[column].sensors || '',
+            sensorConfig: column === "sensor" ? sensorConfigFields.map((config) => `${config.sensorType}:${config.numberOfNodes}:${config.emissionRate}`).join(' ') : '',
+            sensorList: column === "client" ? sensorFields.map((config) => `-r${config.sensorName}`).join(' ') : '',
         }).toString();
+
 
         // Build the URL with query parameters
         const newEventSource = new EventSource(`http://localhost:8080/trigger/${column}?${queryParams}`);
@@ -135,76 +196,75 @@ export default function Home() {
 
     return (
         <div className=" container mt-4">
-            <div  style={{background: "radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,0.35057773109243695) 100%)"}} className="card">
+            <div
+                style={{background: "radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,0.35057773109243695) 100%)"}}
+                className="card">
 
-                <div   className="container text-center ">
-                    <div  className="row">
-                        <div  className="col-sm-6 d-flex justify-content-center align-items-center">
+                <div className="container text-center ">
+                    <div className="row">
+                        <div className="col-sm-6 d-flex justify-content-center align-items-center">
                             <div className="m-5">
-                                <h2 style={{fontWeight: "900"}}>STGen Testbed Launcher over SRTP protocol</h2>
-                                <hr style={{fontWeight: "900"}}/>
-                                <h5 style={{fontWeight: "900"}}>Simulate Testbed</h5>
+                                <h2 style={{fontWeight: "900"}}>STGen Traffic Analyzer Application</h2>
                             </div>
                         </div>
                         <div className="col-sm-6">
-                        <Image
-                        src={img1}
-                        width={300}
-                        height={300}
-                        alt="Picture of the author"
-                        />
-                        {/* <img width="500px" 
+                            <Image
+                                src={img1}
+                                width={300}
+                                height={300}
+                                alt="Picture of the author"
+                            />
+                            {/* <img width="500px"
                         height="500px"  src="./images/image.svg" alt="" /> */}
                         </div>
                     </div>
                 </div>
-                <div  className="card-body p-0">
-                    <form >
-                        <table  className="table table-bordered ">
-                            <thead  className="thead-light ">
-                            <tr >
-                                <th style={{height:"80px"}} >
+                <div className="card-body p-0">
+                    <form>
+                        <table className="table table-bordered ">
+                            <thead className="thead-light ">
+                            <tr>
+                                <th style={{height: "80px"}}>
                                     <div className="d-flex justify-content-center align-items-center ">
-                                    <Image
-                                    src={img2}
-                                    width={50}
-                                    height={50}
-                                    alt="Picture of the author"
-                                    />
-                                    <p  style={{marginTop:"18px "}}>STGEN Core Node Instance Setup</p>
+                                        <Image
+                                            src={img2}
+                                            width={50}
+                                            height={50}
+                                            alt="Picture of the author"
+                                        />
+                                        <p style={{marginTop: "18px "}}>STGen Core Node Instance Setup</p>
                                     </div>
-                                    
-                                    
+
+
                                 </th>
 
-                                <th style={{height:"80px"}} >
+                                <th style={{height: "80px"}}>
                                     <div className="d-flex justify-content-center align-items-center">
-                                    <Image
-                                    src={img3}
-                                    width={50}
-                                    height={50}
-                                    alt="Picture of the author"
-                                    />
-                                    <p  style={{marginTop:"18px "}}>Sensor Setup</p>
+                                        <Image
+                                            src={img3}
+                                            width={50}
+                                            height={50}
+                                            alt="Picture of the author"
+                                        />
+                                        <p style={{marginTop: "18px "}}>Sensor Setup</p>
                                     </div>
-                                    
-                                    
+
                                 </th>
 
-                                <th style={{height:"80px"}} >
+                                <th style={{height: "80px"}}>
                                     <div className="d-flex justify-content-center align-items-center">
-                                    <Image
-                                    src={img4}
-                                    width={50}
-                                    height={50}
-                                    alt="Picture of the author"
-                                    />
-                                    <p  style={{marginTop:"18px "}}>Client Setup</p>
+                                        <Image
+                                            src={img4}
+                                            width={50}
+                                            height={50}
+                                            alt="Picture of the author"
+                                        />
+                                        <p style={{marginTop: "18px "}}>Client Setup</p>
                                     </div>
-                                    
-                                    
+
+
                                 </th>
-                               
+
                                 {/* <th style={{height:"80px" }} className="d-flex justify-content-center align-items-center">
                                     <Image
                                     src={img2}
@@ -215,7 +275,7 @@ export default function Home() {
                                     
                                     
                                 </th> */}
-                               
+
                                 {/* <th style={{height:"80px "}} className="d-flex justify-content-center align-items-center">
                                     <Image
                                     src={img2}
@@ -233,7 +293,7 @@ export default function Home() {
 
                                 <td>
                                     <label>
-                                        <p className="m-1 text-primary-emphasis fw-bold">Instance IP/Port address</p>
+                                        <p className="m-1 text-primary-emphasis fw-bold">Client Communication address</p>
                                     </label>
                                     <input
                                         name="serverWithPort"
@@ -243,23 +303,21 @@ export default function Home() {
                                         value={inputValues.server.serverWithPort}
                                         onChange={(e) => handleInputChange('server', 'serverWithPort', e.target.value)}
                                     />
-                                    <hr></hr>
                                     <label>
-                                        
-                                        <p className="m-1 text-primary-emphasis fw-bold">Client Port</p>
+                                        <p className="m-1 text-primary-emphasis fw-bold">Sensor Communication
+                                            address</p>
                                     </label>
                                     <input
-                                        name="clientPort"
+                                        name="sensorPort"
                                         type="text"
                                         className="form-control mb-2"
-                                        placeholder="5005"
-                                        value={inputValues.server.clientPort}
-                                        onChange={(e) => handleInputChange('server', 'clientPort', e.target.value)}
+                                        placeholder="5004"
+                                        value={inputValues.server.sensorCommunicationPort}
+                                        onChange={(e) => handleInputChange('server', 'sensorCommunicationPort', e.target.value)}
                                     />
-                                    <hr></hr>
+
                                     <label>
-                                        
-                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time</p>
+                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time (Seconds)</p>
                                     </label>
                                     <input
                                         name="simulationTime"
@@ -269,31 +327,37 @@ export default function Home() {
                                         value={inputValues.server.simulationTime}
                                         onChange={(e) => handleInputChange('server', 'simulationTime', e.target.value)}
                                     />
-                                    <button type="button" className="btn btn-primary"
-                                            onClick={() => handleServerClick()}>
-                                        Run Server
-                                    </button>
+                                    <br></br>
+                                    <br></br>
+                                    <div className="d-flex justify-content-center">
+                                        <button type="button" className="btn btn-outline-primary"
+                                                onClick={() => handleServerClick()}>
+                                            Run Server
+                                        </button>
+                                    </div>
                                 </td>
                                 <td>
                                     <label>
-                                        
-                                        <p className="m-1 text-primary-emphasis fw-bold">STGEN Core Node Instance Address</p>
+                                        <p className="m-1 text-primary-emphasis fw-bold">Sensor to Core Communication
+                                            Address</p>
                                     </label>
+
                                     <input
-                                        name="serverWithPort"
+                                        name="sensorCommunicationPort"
                                         required={true}
                                         type="text"
                                         className="form-control mb-2"
                                         placeholder="ip:port"
-                                        value={inputValues.sensor.serverWithPort}
-                                        onChange={(e) => handleInputChange('sensor', 'serverWithPort', e.target.value)}
+                                        value={inputValues.sensor.sensorCommunicationPort}
+                                        onChange={(e) => handleInputChange('sensor', 'sensorCommunicationPort', e.target.value)}
                                     />
-                                    <hr></hr>
+                                    {/*<hr></hr>*/}
+
                                     <label>
-                                        
-                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time</p>
-                                   
-                                        
+
+                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time (Seconds)</p>
+
+
                                     </label>
                                     <input
                                         name="simulationTime"
@@ -304,68 +368,96 @@ export default function Home() {
                                         value={inputValues.sensor.simulationTime}
                                         onChange={(e) => handleInputChange('sensor', 'simulationTime', e.target.value)}
                                     />
+                                    {/*<hr></hr>*/}
+
+
                                     <hr></hr>
-                                    <label>
-                                        Number Of Sensors
-                                        <p className="m-1 text-primary-emphasis fw-bold">Simulation Time</p>
-                                    </label>
-                                    <input
-                                        name="numberOfSensors"
-                                        type="text"
-                                        required={true}
-                                        className="form-control mb-2"
-                                        placeholder="4"
-                                        value={inputValues.sensor.numberOfSensors}
-                                        onChange={(e) => handleInputChange('sensor', 'numberOfSensors', e.target.value)}
-                                    />
-                                    <button type="button" className="btn btn-primary"
-                                            onClick={() => handleSensorClick()}>
-                                        Run Sensors
-                                    </button>
+                                    <div className="d-flex justify-content-center">
+                                        <label>
+                                            <p className="m-1 text-primary-emphasis fw-bold">Configure Nodes</p>
+                                        </label>
+                                    </div>
+                                    <hr></hr>
+
+                                    {sensorConfigFields.map((input, index) => (
+                                        <div key={index} className="d-flex align-items-center">
+                                            <p className="m-1 text-primary-emphasis fw-bold">Sensor Type</p>
+                                            <select
+                                                name="numberOfSensors"
+                                                required
+                                                className="form-control me-4"
+                                                style={{width: "100px"}}
+                                                value={input.sensorType}
+                                                onChange={(e) => handleSesnsorInputChange(index, 'sensorType', e.target.value)}
+                                            >
+                                                <option value="gps">gps</option>
+                                                <option value="camera">camera</option>
+                                                <option value="device">device</option>
+                                                <option value="temp">temp</option>
+                                            </select>
+                                            <p className="m-1 text-primary-emphasis fw-bold">Number of node</p>
+                                            <input
+                                                name="numberOfSensors"
+                                                type="text"
+                                                required={true}
+                                                className="form-control me-4"
+                                                style={{width: "60px"}}
+                                                value={input.numberOfNodes}
+                                                placeholder="4"
+                                                onChange={(e) => handleSesnsorInputChange(index, 'numberOfNodes', e.target.value)}
+                                            />
+                                            <p className="m-1 text-primary-emphasis fw-bold">Increase Emission Rate
+                                                (%)</p>
+                                            <input
+                                                name="numberOfSensors"
+                                                type="text"
+                                                required={true}
+                                                className="form-control me-4"
+                                                style={{width: "60px"}}
+                                                value={`${input.emissionRate}`}
+                                                placeholder="0"
+                                                onChange={(e) => handleSesnsorInputChange(index, 'emissionRate', e.target.value)}
+                                            />
+                                            <br></br>
+                                            <br></br>
+                                            <br></br>
+                                        </div>
+                                    ))}
+                                    <br></br>
+                                    <div className="d-flex justify-content-end">
+                                        <button type="button" className="btn btn-secondary btn-sm"
+                                                onClick={handleAddMoreSensors}>
+                                            + Configure New Sensor
+                                        </button>
+                                    </div>
+                                    <hr></hr>
+                                    <br></br>
+                                    <br></br>
+                                    <div className="d-flex justify-content-center">
+                                        <button type="button" className="btn btn-outline-primary"
+                                                onClick={() => handleSensorClick()}>
+                                            Run Sensors
+                                        </button>
+                                    </div>
                                 </td>
 
                                 <td>
                                     <label>
-                                        
-                                        <p className="m-1 text-primary-emphasis fw-bold">STGEN Core Node Instance Address</p>
+
+                                        <p className="m-1 text-primary-emphasis fw-bold">Client to Core Communication
+                                            Address</p>
                                     </label>
                                     <input
-                                        name="server"
+                                        name="serverWithPort"
                                         type="text"
                                         className="form-control mb-2"
                                         placeholder="ip"
-                                        value={inputValues.client.server}
-                                        onChange={(e) => handleInputChange('client', 'server', e.target.value)}
+                                        value={inputValues.client.serverWithPort}
+                                        onChange={(e) => handleInputChange('client', 'serverWithPort', e.target.value)}
                                     />
-                                    <hr></hr>
+
                                     <label>
-                                        
-                                        <p className="m-1 text-primary-emphasis fw-bold">Client Application Address</p>
-                                    </label>
-                                    <input
-                                        name="clientPort"
-                                        type="text"
-                                        className="form-control mb-2"
-                                        placeholder="Field 2"
-                                        value={inputValues.client.clientPort}
-                                        onChange={(e) => handleInputChange('client', 'clientPort', e.target.value)}
-                                    />
-                                    <hr></hr>
-                                    <label>
-                                        
-                                        <p className="m-1 text-primary-emphasis fw-bold">Which sensor are you interested in?</p>
-                                    </label>
-                                    <input
-                                        name="sensors"
-                                        type="text"
-                                        className="form-control mb-2"
-                                        placeholder="gps_2"
-                                        value={inputValues.client.sensors}
-                                        onChange={(e) => handleInputChange('client', 'sensors', e.target.value)}
-                                    />
-                                    <hr></hr>
-                                    <label>
-                                        
+
                                         <p className="m-1 text-primary-emphasis fw-bold">Archive directory Name</p>
                                     </label>
                                     <input
@@ -376,10 +468,11 @@ export default function Home() {
                                         value={inputValues.client.clientLogName}
                                         onChange={(e) => handleInputChange('client', 'clientLogName', e.target.value)}
                                     />
-                                    <hr></hr>
+                                    {/*<hr></hr>*/}
+
                                     <label>
-                                       
-                                        <p className="m-1 text-primary-emphasis fw-bold"> Observation Time</p>
+
+                                        <p className="m-1 text-primary-emphasis fw-bold"> Observation Time (Seconds)</p>
                                     </label>
                                     <input
                                         name="observationTime"
@@ -389,37 +482,69 @@ export default function Home() {
                                         value={inputValues.client.observationTime}
                                         onChange={(e) => handleInputChange('client', 'observationTime', e.target.value)}
                                     />
-                                    <button type="button" className="btn btn-primary"
-                                            onClick={() => handleClientClick()}>
-                                        Run Client
-                                    </button>
+                                    {/*<hr></hr>*/}
+
+                                    <hr></hr>
+                                    <label>
+                                        <p className="m-1 text-primary-emphasis fw-bold">Which sensor are you interested
+                                            in?</p>
+                                    </label>
+                                    {sensorFields.map((input, index) => (
+                                        <div key={index} className="d-flex align-items-center">
+
+                                            <input
+                                                name="sensorName"
+                                                type="text"
+                                                className="form-control mb-2"
+                                                placeholder="120"
+                                                value={input.sensorName}
+                                                onChange={(e) => handleSesnsorInterestChange(index, 'sensorName', e.target.value)}
+                                            />
+                                        </div>
+                                    ))}
+                                    <div className="d-flex justify-content-end">
+                                        <button type="button" className="btn btn-secondary btn-sm"
+                                                onClick={handleAddSensorInterests}>
+                                            + Add More
+                                        </button>
+                                    </div>
+                                    <hr></hr>
                                     <br></br>
                                     <br></br>
+                                    <div className="d-flex justify-content-center">
+                                        <button type="button" className="btn btn-outline-primary"
+                                                onClick={() => handleClientClick()}>
+                                            Run Client
+                                        </button>
+                                    </div>
                                     {
-                                       showDownloadLink && <Link style={{backgroundColor:"green", color:"whitesmoke"}} href={`http://localhost:8080/download?logDirectory=${inputValues.client.clientLogName}`}>Download Received Data</Link>
+                                        showDownloadLink &&
+                                        <Link style={{backgroundColor: "green", color: "whitesmoke"}}
+                                              href={`http://localhost:8080/download?logDirectory=${inputValues.client.clientLogName}`}>Download
+                                            Received Data</Link>
                                     }
 
 
                                 </td>
                             </tr>
-                            
-                            <tr >
-                            
-                                <td >
-                                    <div >
-                                        <label><b>STGEN Core Node Instance Logs</b></label>
-                                        <textarea  className="form-control" value={textAreas.server} readOnly
-                                                rows={20}></textarea>
+
+                            <tr>
+
+                                <td>
+                                    <div>
+                                        <label><b>STGen Core Node Instance Logs</b></label>
+                                        <textarea className="form-control" value={textAreas.server} readOnly
+                                                  rows={20}></textarea>
                                     </div>
                                 </td>
                                 <td>
-                                
+
                                     <label><b>Sensor application Logs</b></label>
                                     <textarea className="form-control" value={textAreas.sensor} readOnly
                                               rows={20}></textarea>
                                 </td>
                                 <td>
-                                    
+
                                     <label><b>Client application Logs</b></label>
                                     <textarea className="form-control" value={textAreas.client} readOnly
                                               rows={20}></textarea>
