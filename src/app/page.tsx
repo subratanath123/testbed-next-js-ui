@@ -31,10 +31,27 @@ export default function Home() {
         client: string;
     }
 
+    const sensorMap = {
+        "gps": "GPS",
+        "camera": "Camera",
+        "temp": "Temperature",
+        "device": "Device",
+    };
+
+    const sensorDefaultGenerationIntervalMap = {
+        "gps": 1,
+        "camera": 1,
+        "temp": 1,
+        "device": 2,
+    };
+
+    type SensorKeys = keyof typeof sensorMap
+
     interface SensorConfigFields {
-        sensorType: string;
+        sensorType: SensorKeys;
         numberOfNodes: number;
         emissionRate: number;
+        override: boolean;
     }
 
     interface SensorInterestField {
@@ -44,23 +61,39 @@ export default function Home() {
     const [sensorConfigFields, setSensorConfigFields] = useState<SensorConfigFields[]>([]);
     const [sensorFields, setSensorFields] = useState<SensorInterestField[]>([]);
 
+
     const handleAddMoreSensors = () => {
         setSensorConfigFields((prevInputs) => [
             ...prevInputs,
-            {sensorType: 'gps', numberOfNodes: 4, emissionRate: 100}
+            {sensorType: 'gps', numberOfNodes: 4, emissionRate: sensorDefaultGenerationIntervalMap.gps, override: true}
         ]);
     };
 
-    const handleSesnsorInputChange = (index: number, field: keyof SensorConfigFields, value: string) => {
+    const handleSesnsorInputChange = (index: number, field: keyof SensorConfigFields, value: string | boolean) => {
         const newInputs = [...sensorConfigFields];
         // Use type assertion to ensure TypeScript knows newInputs[index] is SensorConfigFields
         newInputs[index] = {
             ...newInputs[index],
             [field]: value
         };
+
+        if (field == 'sensorType') {
+            newInputs[index] = {
+                ...newInputs[index],
+                emissionRate: sensorDefaultGenerationIntervalMap[value]
+            };
+        }
+
+        if (field == 'override') {
+            newInputs[index] = {
+                ...newInputs[index],
+                override: !value
+            };
+        }
+
+
         setSensorConfigFields(newInputs);
     };
-
 
     const handleAddSensorInterests = () => {
         setSensorFields((prevInputs) => [
@@ -130,7 +163,7 @@ export default function Home() {
             server: inputValues[column].server || '',
             clientLogName: inputValues[column].clientLogName || '',
             sensors: inputValues[column].sensors || '',
-            sensorConfig: column === "sensor" ? sensorConfigFields.map((config) => `${config.sensorType}:${config.numberOfNodes}:${config.emissionRate}`).join(' ') : '',
+            sensorConfig: column === "sensor" ? sensorConfigFields.map((config) => `${config.sensorType}:${config.numberOfNodes}:${config.override && config.sensorType != "device" ? config.emissionRate : 0}`).join(' ') : '',
             sensorList: column === "client" ? sensorFields.map((config) => `-r${config.sensorName}`).join(' ') : '',
         }).toString();
 
@@ -293,7 +326,8 @@ export default function Home() {
 
                                 <td>
                                     <label>
-                                        <p className="m-1 text-primary-emphasis fw-bold">Client Communication address</p>
+                                        <p className="m-1 text-primary-emphasis fw-bold">Client Communication
+                                            address</p>
                                     </label>
                                     <input
                                         name="serverWithPort"
@@ -379,50 +413,83 @@ export default function Home() {
                                     </div>
                                     <hr></hr>
 
-                                    {sensorConfigFields.map((input, index) => (
-                                        <div key={index} className="d-flex align-items-center">
-                                            <p className="m-1 text-primary-emphasis fw-bold">Sensor Type</p>
-                                            <select
-                                                name="numberOfSensors"
-                                                required
-                                                className="form-control me-4"
-                                                style={{width: "100px"}}
-                                                value={input.sensorType}
-                                                onChange={(e) => handleSesnsorInputChange(index, 'sensorType', e.target.value)}
-                                            >
-                                                <option value="gps">gps</option>
-                                                <option value="camera">camera</option>
-                                                <option value="device">device</option>
-                                                <option value="temp">temp</option>
-                                            </select>
-                                            <p className="m-1 text-primary-emphasis fw-bold">Number of node</p>
-                                            <input
-                                                name="numberOfSensors"
-                                                type="text"
-                                                required={true}
-                                                className="form-control me-4"
-                                                style={{width: "60px"}}
-                                                value={input.numberOfNodes}
-                                                placeholder="4"
-                                                onChange={(e) => handleSesnsorInputChange(index, 'numberOfNodes', e.target.value)}
-                                            />
-                                            <p className="m-1 text-primary-emphasis fw-bold">Increase Emission Rate
-                                                (%)</p>
-                                            <input
-                                                name="numberOfSensors"
-                                                type="text"
-                                                required={true}
-                                                className="form-control me-4"
-                                                style={{width: "60px"}}
-                                                value={`${input.emissionRate}`}
-                                                placeholder="0"
-                                                onChange={(e) => handleSesnsorInputChange(index, 'emissionRate', e.target.value)}
-                                            />
-                                            <br></br>
-                                            <br></br>
-                                            <br></br>
-                                        </div>
-                                    ))}
+                                    <table className="table">
+                                        <thead>
+                                        <tr>
+                                            <th style={{width: "100px"}}>Sensor</th>
+                                            <th style={{width: "120px"}}>Number of Nodes</th>
+                                            <th style={{width: "150px"}}>Override Default Interval</th>
+                                            <th style={{width: "80px"}}></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {sensorConfigFields.map((input, index) => (
+                                            <tr key={index}>
+                                                <td width="140px">
+                                                    <select
+                                                        name="sensorType"
+                                                        required
+                                                        className="form-control"
+                                                        style={{width: "100%"}}
+                                                        value={input.sensorType}
+                                                        onChange={(e) => handleSesnsorInputChange(index, 'sensorType', e.target.value)}
+                                                    >
+                                                        <option value="gps">GPS</option>
+                                                        <option value="camera">Camera</option>
+                                                        <option value="device">Device</option>
+                                                        <option value="temp">Temperature</option>
+                                                    </select>
+                                                </td>
+
+                                                <td>
+                                                    <input
+                                                        name="numberOfNodes"
+                                                        type="text"
+                                                        required
+                                                        className="form-control"
+                                                        style={{width: "100%"}}
+                                                        value={input.numberOfNodes}
+                                                        placeholder="4"
+                                                        onChange={(e) => handleSesnsorInputChange(index, 'numberOfNodes', e.target.value)}
+                                                    />
+                                                </td>
+
+                                                <td>
+                                                    <div className="text-center form-check form-switch">
+                                                        {
+                                                            input.sensorType != "device" &&
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                checked={input.override}
+                                                                id={`flexCheckDefault-${index}`}
+                                                                onChange={() => handleSesnsorInputChange(index, 'override', input.override)}
+                                                            />
+                                                        }
+                                                    </div>
+                                                </td>
+
+                                                <td>
+                                                    {input.override && input.sensorType != "device" && (
+                                                        <div style={{display: "flex", alignItems: "center"}}>
+                                                            <input
+                                                                name="emissionRate"
+                                                                type="text"
+                                                                required
+                                                                className="form-control"
+                                                                style={{width: "70px", marginRight: "5px"}}
+                                                                value={input.emissionRate}
+                                                                placeholder="0"
+                                                                onChange={(e) => handleSesnsorInputChange(index, 'emissionRate', e.target.value)}
+                                                            />
+                                                            <span>Second(s)</span>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
                                     <br></br>
                                     <div className="d-flex justify-content-end">
                                         <button type="button" className="btn btn-secondary btn-sm"
