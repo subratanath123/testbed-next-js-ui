@@ -601,20 +601,20 @@ export default function Home() {
                                     <div>
                                         <label><b>STGen Core Node Instance Logs</b></label>
                                         <textarea className="form-control" value={textAreas.server} readOnly
-                                                  rows={20}></textarea>
+                                                  rows={6}></textarea>
                                     </div>
                                 </td>
                                 <td>
 
                                     <label><b>Sensor application Logs</b></label>
                                     <textarea className="form-control" value={textAreas.sensor} readOnly
-                                              rows={20}></textarea>
+                                              rows={6}></textarea>
                                 </td>
                                 <td>
 
                                     <label><b>Client application Logs</b></label>
                                     <textarea className="form-control" value={textAreas.client} readOnly
-                                              rows={20}></textarea>
+                                              rows={6}></textarea>
                                 </td>
                             </tr>
                             </tbody>
